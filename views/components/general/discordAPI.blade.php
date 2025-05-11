@@ -29,16 +29,33 @@
                         e.innerText.includes('{online}') ? e.innerText = e.innerText.replace('{online}', d.presence_count):'';
                     });
                     @if(!$onlyCounter)
-                        d.members.sort((a,b)=> (a.status>b.status)*2-1).forEach(function (m) {
-                            discordList.insertAdjacentHTML('afterbegin', `
-                            <li class="d-flex align-items-center gap-1 my-2">
-                                <div class="position-relative rounded-circle" style="background: url('${m.avatar_url}') center / cover no-repeat;width: 30px;height: 30px">
-                                    <span class="position-absolute bottom-0 end-0 rounded-circle discord-status-${m.status}" style="width: 8px;height: 8px"></span>
-                                </div>
-                                ${m.username}
-                            </li>
-                        `);
-                        })
+                        // Exclude bots from the member list
+                        // The Discord embed API does not provide a 'bot' property, so we filter by known bot names or if username contains 'bot'
+                        const knownBots = [
+                            "BebraLand | Carl-bot",
+                            "BebraLand | FlaviBot",
+                            "BebraLand | EazyAutodelete",
+                            "BebraLand | Appy",
+                            "BebraLand | InviteLogger",
+                            "BebraLand TechnoMagic",
+                            "BebraLand"
+                        ];
+                        d.members
+                            .filter(m =>
+                                !knownBots.includes(m.username) &&
+                                !/bot/i.test(m.username)
+                            )
+                            .sort((a,b)=> (a.status>b.status)*2-1)
+                            .forEach(function (m) {
+                                discordList.insertAdjacentHTML('afterbegin', `
+                                <li class="d-flex align-items-center gap-1 my-2">
+                                    <div class="position-relative rounded-circle" style="background: url('${m.avatar_url}') center / cover no-repeat;width: 30px;height: 30px">
+                                        <span class="position-absolute bottom-0 end-0 rounded-circle discord-status-${m.status}" style="width: 8px;height: 8px"></span>
+                                    </div>
+                                    ${m.username}
+                                </li>
+                            `);
+                            })
                     @endif
                 })
             }).catch(function (err) {
