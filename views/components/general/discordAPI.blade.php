@@ -40,14 +40,25 @@
                             "BebraLand TechnoMagic",
                             "BebraLand"
                         ];
-                        d.members
+
+                        // Separate aurum and other members
+                        const aurumMembers = d.members
                             .filter(m =>
+                                m.username === "aurum" &&
+                                !knownBots.includes(m.username) &&
+                                !/bot/i.test(m.username)
+                            );
+                        const otherMembers = d.members
+                            .filter(m =>
+                                m.username !== "aurum" &&
                                 !knownBots.includes(m.username) &&
                                 !/bot/i.test(m.username)
                             )
-                            .sort((a,b)=> (a.status>b.status)*2-1)
-                            .forEach(function (m) {
-                                discordList.insertAdjacentHTML('afterbegin', `
+                            .sort((a,b)=> (a.status>b.status)*2-1);
+
+                        // Insert aurum first, then others
+                        [...aurumMembers, ...otherMembers].forEach(function (m) {
+                            discordList.insertAdjacentHTML('beforeend', `
                                 <li class="d-flex align-items-center gap-1 my-2">
                                     <div class="position-relative rounded-circle" style="background: url('${m.avatar_url}') center / cover no-repeat;width: 30px;height: 30px">
                                         <span class="position-absolute bottom-0 end-0 rounded-circle discord-status-${m.status}" style="width: 8px;height: 8px"></span>
@@ -55,7 +66,7 @@
                                     ${m.username}
                                 </li>
                             `);
-                            })
+                        });
                     @endif
                 })
             }).catch(function (err) {
